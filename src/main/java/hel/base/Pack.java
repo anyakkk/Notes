@@ -19,13 +19,11 @@ public class Pack {
     @ManyToOne
     private User user;
 
-
-
     @JsonIgnore
     @OneToMany(mappedBy = "pack", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Set<hel.base.Note> notes =  new HashSet<>();;
+    private Set<Note> notes =  new HashSet<>();;
 
-    public Set<hel.base.Note> getNotes() {
+    public Set<Note> getNotes() {
         return notes;
     }
 
@@ -36,7 +34,7 @@ public class Pack {
         this.name = name;
     }
 
-    public void setNotes(Set<hel.base.Note> notes) {
+    public void setNotes(Set<Note> notes) {
         this.notes = notes;
     }
 
@@ -57,11 +55,12 @@ public class Pack {
     }
 
 
-    public hel.base.User getUser() {
+    public User getUser() {
         return user;
     }
 
-    public void setUser(hel.base.User user) {
+    public void setUser(User user) {
         this.user = user;
     }
+
 }

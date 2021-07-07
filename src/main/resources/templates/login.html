@@ -3,20 +3,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
 <head>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Вход в аккаунт</title>
+    <meta charset="UTF-8">
 </head>
 <body>
 <div class="position-relative">
-        <h1>Войти в аккаунт</h1>
-        <div th:if="${param.error}">
-            Неправильный логин и пароль.
-        </div>
-        <div th:if="${param.logout}">
-            Вы вышли.
-        </div>
-        <div class="mb-3">
+        <h1 style="height: 10em; position: relative; margin: 0;position: absolute;top: 50%;left: 50%; margin-right: -50%; transform: translate(-50%, -50%)">Войти в аккаунт</h1>
+        <div class="mb-3" style="height: 10em; position: relative; margin: 0;position: absolute;top: 50%;left: 50%; margin-right: -50%; transform: translate(-50%, -50%)">
             <form th:action="@{/login}" method="post">
                 <div>
                     <label> Логин: <input type="text" name="username"/></label>
@@ -31,7 +24,10 @@
                 </div>
             </form>
         </div>
-    <a th:href="@{/registration}">Регистрация.</a>
+    <div>
+        <a th:href="@{/registration}">Регистрация.</a>
+    </div>
 </div>
 </body>
 </html>
+

@@ -6,8 +6,8 @@
 </head>
 <body>
 <div class="position-relative">
-    <h1>Зарегистрироваться</h1>
-    <div class="mb-3">
+    <h1 style="height: 10em; position: relative; margin: 0;position: absolute;top: 50%;left: 50%; margin-right: -50%; transform: translate(-50%, -50%)">Зарегистрироваться</h1>
+    <div class="mb-3" style="height: 10em; position: relative; margin: 0;position: absolute;top: 50%;left: 50%; margin-right: -50%; transform: translate(-50%, -50%)">
         <form action="#" th:action="@{/registration}" th:object="${userForm}" method="post">
             <div>
                 <label> Логин: <input type="text" name="username" th:field="${userForm.username}"/></label>
@@ -25,3 +25,4 @@
 </div>
 </body>
 </html>
+

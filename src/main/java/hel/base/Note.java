@@ -61,4 +61,5 @@ public class Note {
     public void setPack(hel.base.Pack pack) {
         this.pack = pack;
     }
+
 }
