@@ -63,22 +63,15 @@ public class NoteController {
 
 
     @PostMapping("/registration")
-    public String regi(@ModelAttribute("reg") User userForm, Model model) {
-            Optional<User> user = userRepository.findByUsername(userForm.getUsername());
-            if (!user.isPresent()) {
-                userRepository.save(new User(userForm.getUsername(), bCryptPasswordEncoder.encode(userForm.getPassword())));
-            }
-
-        if (userForm.getUsername() == String.valueOf(false)){
+    public String regi(@ModelAttribute("userForm") User userForm, Model model) {
+        Optional<User> user = userRepository.findByUsername(userForm.getUsername());
+        if (!user.isPresent()) {
+            userRepository.save(new User(userForm.getUsername(), bCryptPasswordEncoder.encode(userForm.getPassword())));
+        }
+        else{
             model.addAttribute("usernameError", "Пользователь с таким именем уже существует");
             return "registration";
         }
-
         return "redirect:/login";
-
-
     }
-
-
-
 }
