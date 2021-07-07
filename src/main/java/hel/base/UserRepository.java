@@ -2,6 +2,10 @@ package hel.base;
 
 import org.springframework.data.repository.CrudRepository;
 
-public interface  UserRepository extends CrudRepository<hel.base.User, Long> {
+import java.util.Optional;
+
+public interface  UserRepository extends CrudRepository<User, Long> {
     User getByUsername(String username);
+
+    Optional<User> findByUsername(String username);
 }
