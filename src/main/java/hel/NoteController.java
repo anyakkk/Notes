@@ -69,10 +69,6 @@ public class NoteController {
                 userRepository.save(new User(userForm.getUsername(), bCryptPasswordEncoder.encode(userForm.getPassword())));
             }
 
-        if (!userForm.getPassword().equals(userForm.getPasswordConfirm())){
-            model.addAttribute("passwordError", "Пароли не совпадают");
-            return "registration";
-        }
         if (userForm.getUsername() == String.valueOf(false)){
             model.addAttribute("usernameError", "Пользователь с таким именем уже существует");
             return "registration";
