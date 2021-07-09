@@ -3,7 +3,7 @@ package hel.base;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "table3")
+@Table(name = "tableNote")
 public class Note {
 
     @Id
@@ -24,7 +24,7 @@ public class Note {
     public Note() {
     }
 
-    public Note(String name, String hold, hel.base.Pack pack) {
+    public Note(String name, String hold, Pack pack) {
         this.name = name;
         this.hold = hold;
         this.pack = pack;
