@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 @Entity
@@ -21,7 +20,7 @@ public class Pack {
     private User user;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "pack", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "pack", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private Set<Note> notes =  new HashSet<>();;
 
     public Set<Note> getNotes() {

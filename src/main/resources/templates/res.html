@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
+    <meta charset="UTF-8"/>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstra.." integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 
     <script>
         function addPack() {
@@ -37,6 +38,155 @@
             element.focus()
             element.select()
         }
+        
+        function removeNote(ID) {
+            axios.get("/removeNote", {
+                withCredentials: true,
+                params: {
+                    "id": ID
+                }
+            }).then(res => {
+                location.reload()
+            });
+        }
+
+        function removePack(ID) {
+            axios.get("/removePack", {
+                withCredentials: true,
+                params: {
+                    "id": ID
+                }
+            }).then(res => {
+                location.reload()
+            });
+        }
+
+        function renamePack(ID) {
+            let name = document.getElementById(ID)
+            let defName = name.textContent
+
+            let element = document.createElement("input")
+            element.setAttribute("type", "text")
+            element.setAttribute("style", "width: 90%")
+
+            name.textContent = ""
+            name.appendChild(element)
+
+            let endEvent = function (event) {
+                if ((element.value == null) || (element.value === "")) {
+                    name.textContent = defName
+                }
+                name.textContent = element.value
+                axios.get("/renamePack", {
+                    withCredentials: true,
+                    params: {
+                        "name": element.value,
+                        "id": ID
+                    }
+                }).then(res => {
+                    location.reload()
+                });
+            }
+
+            element.addEventListener('focusout',endEvent)
+            element.addEventListener('keydown', function(e) {
+                if (e.key == 'Enter') {
+                    endEvent()
+                }
+            });
+            element.focus()
+            element.select()
+        }
+
+        function showList() {
+            inInput = true;
+            let e = document.getElementById("search-list");
+            if (e.hasAttribute("style")) {
+                e.removeAttribute("style")
+            }
+            e.setAttribute("style", "display:block!important")
+        }
+
+        function outList() {
+            inList = false;
+            if (!inInput && !inList) {
+                hideElement();
+            }
+        }
+
+        function insideList() {
+            inList = inInput;
+
+        }
+
+        function hideList() {
+            inInput = false;
+            if (!inInput && !inList) {
+                hideElement();
+            }
+        }
+
+        var inInput = false;
+        var inList = false;
+        function hideElement() {
+            let e = document.getElementById("search-list");
+            if (e.hasAttribute("style")) {
+                e.removeAttribute("style")
+            }
+            e.setAttribute("style", "display:none!important")
+        }
+
+        function search() {
+            axios.get("/search", {
+                withCredentials: true,
+                params: {
+                    "search": document.getElementById("user-search").value
+                }
+            }).then(function (object) {
+
+                let container = document.getElementById("search-list");
+                while (container.firstChild) {
+                    container.removeChild(container.firstChild);
+                }
+
+                let packs = object.data["packs"];
+                let notes = object.data["notes"];
+                let packsPrefix = document.createElement("li");
+                let packsPrefixContent = document.createElement("p");
+                packsPrefixContent.setAttribute("class", "dropdown-item");
+                packsPrefixContent.textContent = "Найденные папки";
+                packsPrefix.appendChild(packsPrefixContent);
+                container.appendChild(packsPrefix);
+
+                packs.forEach(function(pack, i, packs) {
+                    let packContainer = document.createElement("li");
+                    let packContainerContent = document.createElement("a");
+                    packContainerContent.setAttribute("class", "dropdown-item");
+                    packContainerContent.setAttribute("href", "/pack/"+pack["id"]);
+                    packContainerContent.textContent = pack["name"];
+                    packContainer.appendChild(packContainerContent)
+                    container.appendChild(packContainer);
+                });
+                let notesPrefix = document.createElement("li");
+                let notesPrefixContent = document.createElement("p");
+                notesPrefixContent.setAttribute("class", "dropdown-item");
+                notesPrefixContent.textContent = "Найденные заметки";
+                notesPrefix.appendChild(notesPrefixContent);
+                container.appendChild(notesPrefix);
+                notes.forEach(function(note, i, notes) {
+                    let noteContainer = document.createElement("li");
+                    let noteContainerContent = document.createElement("a");
+                    noteContainerContent.setAttribute("class", "dropdown-item");
+                    noteContainerContent.setAttribute("href", "/note/"+note["pack"]["id"]+"/"+note["id"]);
+                    noteContainerContent.textContent = note["name"];
+                    noteContainer.appendChild(noteContainerContent)
+                    container.appendChild(noteContainer);
+                });
+            })
+
+
+        }
+
     </script>
 
 
@@ -63,16 +213,20 @@
                             Пользователь
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarScrollingDropdown">
-                            <li><a class="dropdown-item" href="#">User</a></li>
-                            <li><a class="dropdown-item" href="#">Login</a></li>
+                            <li><a class="dropdown-item" href="#">Пользователь</a></li>
+                            <li><a class="dropdown-item" href="#">Выйти</a></li>
                             <li><hr class="dropdown-divider"></li>
                         </ul>
                     </li>
                 </ul>
-                <form class="d-flex">
-                    <input class="form-control me-2" type="search" placeholder="Поиск" aria-label="Поиск">
-                    <button class="btn btn-outline-success" type="submit">Искать</button>
-                </form>
+
+                <div class="dropdown">
+                    <input class="form-control" type="search"  id="user-search" autocomplete="off" placeholder="Поиск" aria-label="Поиск" onkeyup="search(); event.stopPropagation()" onfocus="showList()" onfocusout="hideList()"/>
+                    <ul class="dropdown-menu" onmouseout="outList()" onmouseover="insideList()" id="search-list" style="display: none!important">
+
+                    </ul>
+                </div>
+
             </div>
         </div>
     </nav>
@@ -81,40 +235,61 @@
 
     <p></p>
 
-    <div class="container-fluid m-0 p-0" style="padding-right: 0.75rem!important;">
+    <div class="container-fluid m-0 p-0" style="padding-right: 0.75rem!important">
         <div class="row">
-            <div class="col-2">
-                <button class="btn btn-outline-dark" onclick="addPack()">Добавить папку</button>
-                <div id="list-packs">
-                    <button th:each="pack:${packList}" th:text="${pack.name}" th:onclick="'location.replace(\'/pack/'+${pack.id}+'\')'"></button>
-                </div>
-            </div>
-            <div class="col-2">
-                <button class="btn btn-outline-dark" th:onclick="'location.replace(\'/addNote/'+${packSelected}+'\')'" th:if="${isPackSelected}">Добавить заметку</button>
-                <div id="list-notes">
-                    <div th:if="${isPackSelected && not noteList.isEmpty()}">
-                        <button th:onclick="'location.replace(\'/note/'+${packSelected}+'/'+${note.id}+'\')'" th:each="note:${noteList}" th:text="${note.name}"></button>
-                </div>
-                    <div th:if="${isPackSelected && noteList.isEmpty()}">
-                        Нет заметок
+            <div class="col-2" style="margin-left: 15px">
+                <div class="shadow p-3 mb-5 bg-body rounded">
+                    <button class="btn btn-outline-primary" onclick="addPack()" style="width: 100%">Добавить папку</button>
+                    <p></p>
+                    <div id="list-packs">
+                        <button th:class="'btn btn-outline-dark dropdown-toggle'+(${pack.id eq packSelected}?'btn btn-primary dropdown-toggle btn-lg active')"
+                                th:each="pack:${packList}" th:text="${pack.name}"
+                                th:onclick="(${pack.id != packSelected})?('location.replace(\'/pack/'+${pack.id}+'\')')" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="width: 100%"></button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <li><button class="dropdown-item" th:onclick="'renamePack('+${pack.id})+')'">Изменить название</button></li>
+                            <li><button class="dropdown-item" th:onclick="'removePack('+${packSelected} +')'" >Удалить папку</button></li>
+
+                        </ul>
                     </div>
                 </div>
             </div>
-            <div class="col">
-                <div th:if="${isNoteSelected}">
-                    <form th:object="${saverForm}" th:action="'/saveNote/'+${packSelected}+'/'+${noteSelected}">
-                        <div class="input-group mb-3">
-                            <input autocomplete="off" th:field="${saverForm.name}" type="text" class="form-control" placeholder="Имя заметки" aria-label="Имя заметки" aria-describedby="button-addon2">
-                            <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Сохранить</button>
+
+
+            <div class="col-2">
+                <div class="shadow p-3 mb-5 bg-body rounded">
+                    <button class="btn btn-outline-primary" th:onclick="'location.replace(\'/addNote/'+${packSelected}+'\')'" th:if="${isPackSelected}" style="width: 100%">Добавить заметку</button>
+                    <p></p>
+                    <div id="list-notes">
+                        <div th:if="${isPackSelected && not noteList.isEmpty()}">
+                            <button th:class="'btn btn-outline-dark'+(${note.id eq noteSelected}?'btn btn-primary btn-lg active')"  th:onclick="'location.replace(\'/note/'+${packSelected}+'/'+${note.id}+'\')'" th:each="note:${noteList}" th:text="${note.name}" style="width: 100%"></button>
                         </div>
-                        <p></p>
-                        <textarea th:field="${saverForm.keep}" style="height: 70vh; width: 100%; resize: none"></textarea>
-                    </form>
+                        <div th:if="${isPackSelected && noteList.isEmpty()}" style="position:absolute;top:50%;text-align:center">
+                            Нет заметок
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="shadow p-3 mb-5 bg-body rounded">
+                    <div th:if="${isNoteSelected}">
+                        <form th:object="${saverForm}" th:action="'/saveNote/'+${packSelected}+'/'+${noteSelected}">
+                            <div class="input-group mb-3">
+                                <input autocomplete="off" th:field="${saverForm.name}" type="text" class="form-control" placeholder="Имя заметки" aria-label="Имя заметки" aria-describedby="button-addon2">
+                                <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Сохранить</button>
+                                <button class="btn btn-outline-secondary" th:onclick="'removeNote('+${noteSelected} +')'" >Удалить</button>
+
+                            </div>
+                            <p></p>
+                            <textarea th:field="${saverForm.keep}" style="height: 70vh; width: 100%; resize: none"></textarea>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
 </div>
+
 </body>
 </html>

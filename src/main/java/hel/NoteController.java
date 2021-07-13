@@ -3,7 +3,7 @@ package hel;
 import hel.base.*;
 import hel.saving.SaverForm;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -71,7 +71,7 @@ public class NoteController {
         if (!nowNote.isPresent() || (nowNote.get().getPack() != nowPack.get()))
             return "redirect:/";
         model.addAttribute("packList", packRepository.getByUser(user.get()));
-        model.addAttribute("saverForm", new SaverForm(nowNote.get().getName(),nowNote.get().getHold()));
+        model.addAttribute("saverForm", new SaverForm(nowNote.get().getName(), nowNote.get().getHold()));
         model.addAttribute("isPackSelected", true);
         model.addAttribute("packSelected", packId);
         model.addAttribute("noteList", nowPack.get().getNotes());
@@ -82,7 +82,7 @@ public class NoteController {
     }
 
     @GetMapping("/saveNote/{pack}/{note}")
-    public String addNote(@ModelAttribute("saverForm") SaverForm saverForm, @PathVariable("pack") Long packId, @PathVariable("note") Long noteId, Model model, Principal principal){
+    public String addNote(@ModelAttribute("saverForm") SaverForm saverForm, @PathVariable("pack") Long packId, @PathVariable("note") Long noteId, Model model, Principal principal) {
         Optional<User> user = userRepository.findByUsername(principal.getName());
         Optional<Pack> nowPack = packRepository.findById(packId);
         if (!nowPack.isPresent() || (nowPack.get().getUser() != user.get()))
@@ -117,6 +117,30 @@ public class NoteController {
         return "res";
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<SearchView> notesSearch(@RequestParam("search") String search, Model model, Principal principal) {
+        Optional<User> user = userRepository.findByUsername(principal.getName());
+        return ResponseEntity.ok(new SearchView(
+                packRepository.findByUserAndNameLike(user.get(), "%" + search + "%"),
+                noteRepository.findByNameLikeAndPack_User("%" + search + "%", user.get())));
+    }
+
+    @GetMapping("/renamePack")
+    public String renamePack(@RequestParam("id") Long id, @RequestParam("name") String name, Principal principal) {
+        User user = userRepository.getByUsername(principal.getName());
+        if ((id != null) && (name != null)) {
+            Optional<Pack> pack = packRepository.findById(id);
+
+            if (pack.isPresent() && (pack.get().getUser() == user)) {
+                pack.get().setName(name);
+                packRepository.save(pack.get());
+            }
+
+        }
+        return "redirect:/";
+    }
+
+
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -133,5 +157,24 @@ public class NoteController {
         return "redirect:/login";
     }
 
+    @GetMapping("/removeNote")
+    public String notesRemove(@RequestParam("id") Long id, Model model, Principal principal) {
+        Optional<User> user = userRepository.findByUsername(principal.getName());
+        if (id != null) {
+            Optional<Note> note = noteRepository.findById(id);
+            noteRepository.delete(note.get());
+        }
+        return "redirect:/";
+    }
+
+    @GetMapping("/removePack")
+    public String packsRemove(@RequestParam("id") Long id, Model model, Principal principal) {
+        Optional<User> user = userRepository.findByUsername(principal.getName());
+        if (id != null) {
+            Optional<Pack> pack = packRepository.findById(id);
+            packRepository.delete(pack.get());
+        }
+        return "redirect:/";
+    }
 
 }
