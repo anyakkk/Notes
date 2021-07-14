@@ -258,7 +258,7 @@
                     <div id="list-packs">
 
 
-                        <div class="btn-group" th:each="pack:${packList}">
+                        <div class="btn-group" th:each="pack:${packList}" style="width: 100%">
                             <button th:class="'btn btn-outline-dark'+(${pack.id eq packSelected}?'btn btn-primary active')"
                                      th:text="${pack.name}"
                                     th:onclick="(${pack.id != packSelected})?('location.replace(\'/pack/'+${pack.id}+'\')')" type="button" id="packMenu" style="width: 100%"></button>

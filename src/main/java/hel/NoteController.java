@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.sql.rowset.serial.SerialException;
 import java.security.Principal;
 import java.util.Optional;
 
@@ -28,7 +27,7 @@ public class NoteController {
     @GetMapping("/")
     public String Form(Model model, Principal principal) {
         Optional<User> user = userRepository.findByUsername(principal.getName());
-        model.addAttribute("packList", packRepository.getByUser(user.get()));
+        model.addAttribute("packList", packRepository.getByUserOrderByName(user.get()));
         model.addAttribute("saverForm", new SaverForm());
         model.addAttribute("isPackSelected", false);
         return "res";
@@ -56,11 +55,11 @@ public class NoteController {
         Optional<Pack> nowPack = packRepository.findById(id);
         if (!nowPack.isPresent() || (nowPack.get().getUser() != user.get()))
             return "redirect:/";
-        model.addAttribute("packList", packRepository.getByUser(user.get()));
+        model.addAttribute("packList", packRepository.getByUserOrderByName(user.get()));
         model.addAttribute("saverForm", new SaverForm());
         model.addAttribute("isPackSelected", true);
         model.addAttribute("packSelected", id);
-        model.addAttribute("noteList", nowPack.get().getNotes());
+        model.addAttribute("noteList", noteRepository.getAllByPackOrderByName(nowPack.get()));
         return "res";
     }
 
@@ -72,12 +71,12 @@ public class NoteController {
             return "redirect:/";
         Optional<Note> nowNote = noteRepository.findById(noteId);
         if (!nowNote.isPresent() || (nowNote.get().getPack() != nowPack.get()))
-            return "redirect:/";
-        model.addAttribute("packList", packRepository.getByUser(user.get()));
+            return "redirect:/pack/" + packId;
+        model.addAttribute("packList", packRepository.getByUserOrderByName(user.get()));
         model.addAttribute("saverForm", new SaverForm(nowNote.get().getName(), nowNote.get().getHold()));
         model.addAttribute("isPackSelected", true);
         model.addAttribute("packSelected", packId);
-        model.addAttribute("noteList", nowPack.get().getNotes());
+        model.addAttribute("noteList", noteRepository.getAllByPackOrderByName(nowPack.get()));
         model.addAttribute("isNoteSelected", true);
         model.addAttribute("noteSelected", noteId);
 
@@ -110,11 +109,11 @@ public class NoteController {
         Optional<Pack> nowPack = packRepository.findById(id);
         if (!nowPack.isPresent() || (nowPack.get().getUser() != user.get()))
             return "redirect:/";
-        model.addAttribute("packList", packRepository.getByUser(user.get()));
+        model.addAttribute("packList", packRepository.getByUserOrderByName(user.get()));
         model.addAttribute("saverForm", new SaverForm());
         model.addAttribute("isPackSelected", true);
         model.addAttribute("packSelected", id);
-        model.addAttribute("noteList", nowPack.get().getNotes());
+        model.addAttribute("noteList", noteRepository.getAllByPackOrderByName(nowPack.get()));
         model.addAttribute("isNoteSelected", true);
         model.addAttribute("noteSelected", -1);
         return "res";
