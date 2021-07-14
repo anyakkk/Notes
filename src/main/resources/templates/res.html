@@ -279,23 +279,25 @@
 
 
             <div class="col-2">
-                <div class="shadow p-3 mb-5 bg-body rounded">
-                    <button class="btn btn-outline-primary" th:onclick="'location.replace(\'/addNote/'+${packSelected}+'\')'" th:if="${isPackSelected}" style="width: 100%">Добавить заметку</button>
+                <div class="shadow p-3 mb-5 bg-body rounded" th:if="${isPackSelected}">
+                    <button class="btn btn-outline-primary" th:onclick="'location.replace(\'/addNote/'+${packSelected}+'\')'"  style="width: 100%">Добавить заметку</button>
                     <p></p>
                     <div id="list-notes">
                         <div th:if="${isPackSelected && not noteList.isEmpty()}">
                             <button th:class="'btn btn-outline-dark'+(${note.id eq noteSelected}?'btn btn-primary active')"  th:onclick="'location.replace(\'/note/'+${packSelected}+'/'+${note.id}+'\')'" th:each="note:${noteList}" th:text="${note.name}" style="width: 100%"></button>
                         </div>
-                        <div th:if="${isPackSelected && noteList.isEmpty()}" style="position:absolute;top:50%;text-align:center">
-                            Нет заметок
-                        </div>
+                    </div>
+                </div>
+                <div style="text-align: center">
+                    <div th:if="${isPackSelected && noteList.isEmpty()}" style="display:inline; align-content: center; vertical-align: center; text-align: center;">
+                        <div style="text-align: center">Нет заметок</div>
                     </div>
                 </div>
             </div>
 
             <div class="col">
-                <div class="shadow p-3 mb-5 bg-body rounded">
-                    <div th:if="${isNoteSelected}">
+                <div class="shadow p-3 mb-5 bg-body rounded" th:if="${isNoteSelected}">
+                    <div>
                         <form th:object="${saverForm}" th:action="'/saveNote/'+${packSelected}+'/'+${noteSelected}">
                             <div class="input-group mb-3">
                                 <input autocomplete="off" th:field="${saverForm.name}" type="text" class="form-control" placeholder="Имя заметки" aria-label="Имя заметки" aria-describedby="button-addon2">
