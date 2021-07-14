@@ -9,6 +9,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.sql.rowset.serial.SerialException;
 import java.security.Principal;
 import java.util.Optional;
 
@@ -127,11 +130,11 @@ public class NoteController {
 
     @GetMapping("/renamePack")
     public String renamePack(@RequestParam("id") Long id, @RequestParam("name") String name, Principal principal) {
-        User user = userRepository.getByUsername(principal.getName());
+        Optional<User> user = userRepository.findByUsername(principal.getName());
         if ((id != null) && (name != null)) {
             Optional<Pack> pack = packRepository.findById(id);
 
-            if (pack.isPresent() && (pack.get().getUser() == user)) {
+            if (pack.isPresent() && (pack.get().getUser() == userRepository)) {
                 pack.get().setName(name);
                 packRepository.save(pack.get());
             }
@@ -154,6 +157,12 @@ public class NoteController {
             model.addAttribute("usernameError", "Пользователь с таким именем уже существует");
             return "registration";
         }
+        return "redirect:/login";
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest httpServletRequest) throws ServletException {
+        httpServletRequest.logout();
         return "redirect:/login";
     }
 

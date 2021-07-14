@@ -5,6 +5,9 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">-->
+<!--    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>-->
+<!--    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>-->
 
     <script>
         function addPack() {
@@ -61,41 +64,53 @@
             });
         }
 
+        function stopSpace(e) {
+            if (e.key === "Space") {
+                return false;
+            }
+        }
+
         function renamePack(ID) {
-            let name = document.getElementById(ID)
-            let defName = name.textContent
+            let name = document.getElementById("packMenu");
+            let rename = name.textContent;
 
-            let element = document.createElement("input")
-            element.setAttribute("type", "text")
-            element.setAttribute("style", "width: 90%")
+            let element = document.createElement("input");
+            element.setAttribute("type", "text");
+            element.setAttribute("style", "width: 90%");
+            element.value = rename;
 
-            name.textContent = ""
-            name.appendChild(element)
+            name.textContent = "";
+            name.appendChild(element);
 
             let endEvent = function (event) {
                 if ((element.value == null) || (element.value === "")) {
-                    name.textContent = defName
+                    name.textContent = rename
                 }
-                name.textContent = element.value
+                name.textContent = element.value;
                 axios.get("/renamePack", {
                     withCredentials: true,
                     params: {
-                        "name": element.value,
-                        "id": ID
-                    }
-                }).then(res => {
-                    location.reload()
-                });
-            }
+                        "id": ID,
+                        "name": element.value
 
-            element.addEventListener('focusout',endEvent)
+                    }
+                });
+            };
+
+            element.addEventListener('focusout',endEvent);
             element.addEventListener('keydown', function(e) {
                 if (e.key == 'Enter') {
                     endEvent()
                 }
+                e.stopImmediatePropagation();
+            });
+            element.addEventListener('keyup', function(e) {
+                if (e.key == 'Enter') {
+                    endEvent()
+                }
+                e.stopImmediatePropagation();
             });
             element.focus()
-            element.select()
         }
 
         function showList() {
@@ -202,19 +217,18 @@
 
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
-            <a class="navbar-brand" href="@{/}">Заметки</a>
+            <a class="navbar-brand">Заметки</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarScroll">
                 <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="@{/}" id="navbarScrollingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" id="navbarScrollingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Пользователь
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarScrollingDropdown">
-                            <li><a class="dropdown-item" href="#">Пользователь</a></li>
-                            <li><a class="dropdown-item" href="#">Выйти</a></li>
+                            <li><a class="dropdown-item" href="/logout">Выйти</a></li>
                             <li><hr class="dropdown-divider"></li>
                         </ul>
                     </li>
@@ -242,14 +256,23 @@
                     <button class="btn btn-outline-primary" onclick="addPack()" style="width: 100%">Добавить папку</button>
                     <p></p>
                     <div id="list-packs">
-                        <button th:class="'btn btn-outline-dark dropdown-toggle'+(${pack.id eq packSelected}?'btn btn-primary dropdown-toggle btn-lg active')"
-                                th:each="pack:${packList}" th:text="${pack.name}"
-                                th:onclick="(${pack.id != packSelected})?('location.replace(\'/pack/'+${pack.id}+'\')')" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="width: 100%"></button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <li><button class="dropdown-item" th:onclick="'renamePack('+${pack.id})+')'">Изменить название</button></li>
-                            <li><button class="dropdown-item" th:onclick="'removePack('+${packSelected} +')'" >Удалить папку</button></li>
 
-                        </ul>
+
+                        <div class="btn-group" th:each="pack:${packList}">
+                            <button th:class="'btn btn-outline-dark'+(${pack.id eq packSelected}?'btn btn-primary active')"
+                                     th:text="${pack.name}"
+                                    th:onclick="(${pack.id != packSelected})?('location.replace(\'/pack/'+${pack.id}+'\')')" type="button" id="packMenu" style="width: 100%"></button>
+
+                            <button type="button" th:if="${pack.id eq packSelected}" class="btn btn-primary active dropdown-toggle dropdown-toggle-split" id="menutoggle" data-bs-toggle="dropdown" aria-expanded="false">
+
+                            </button>
+
+                            <ul class="dropdown-menu" aria-labelledby="menutoggle" th:if="${pack.id eq packSelected}">
+                                <li><button class="dropdown-item" th:onclick="'renamePack('+${packSelected}+')'" >Изменить название</button></li>
+                                <li><button class="dropdown-item" th:onclick="'removePack('+${packSelected} +')'" >Удалить папку</button></li>
+                            </ul>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -261,7 +284,7 @@
                     <p></p>
                     <div id="list-notes">
                         <div th:if="${isPackSelected && not noteList.isEmpty()}">
-                            <button th:class="'btn btn-outline-dark'+(${note.id eq noteSelected}?'btn btn-primary btn-lg active')"  th:onclick="'location.replace(\'/note/'+${packSelected}+'/'+${note.id}+'\')'" th:each="note:${noteList}" th:text="${note.name}" style="width: 100%"></button>
+                            <button th:class="'btn btn-outline-dark'+(${note.id eq noteSelected}?'btn btn-primary active')"  th:onclick="'location.replace(\'/note/'+${packSelected}+'/'+${note.id}+'\')'" th:each="note:${noteList}" th:text="${note.name}" style="width: 100%"></button>
                         </div>
                         <div th:if="${isPackSelected && noteList.isEmpty()}" style="position:absolute;top:50%;text-align:center">
                             Нет заметок
